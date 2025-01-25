@@ -72,7 +72,11 @@ const Signup = () => {
 
     try {
       // Proceed with signup using Firebase Authentication (modular v9 method)
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
       // After successful signup, update the user profile (optional)
       const user = userCredential.user;

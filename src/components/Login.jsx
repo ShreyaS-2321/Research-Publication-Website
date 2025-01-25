@@ -26,7 +26,11 @@ const Login = () => {
 
     try {
       // Attempt login with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       console.log("Login Response:", userCredential);
 
       setSuccess("Login successful!");
