@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { account, storage, databases } from "appwrite";
 
 const Uploadform = () => {
   const {
@@ -39,8 +40,47 @@ const Uploadform = () => {
     }
   }, [contributionType]);
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data) => {
+    // File Upload Handling
+    try {
+      // Upload the PDF Document
+      const pdfFile = data.document[0];
+      const pdfFileUploaded = await storage.createFile(
+        "67954e160015d81d5269", // Your bucket ID from Appwrite
+        pdfFile.name,
+        pdfFile
+      );
+  
+      // Upload the Cover Image
+      const imageFile = data.coverImage[0];
+      const imageFileUploaded = await storage.createFile(
+        "67954e160015d81d5269", // Your bucket ID from Appwrite
+        imageFile.name,
+        imageFile
+      );
+  
+      // Save the form data along with file IDs to Appwrite database
+      const response = await databases.createDocument(
+        "679549870000eafd23e3", // The database ID from Appwrite
+        "679549a900198ab41a28", // The collection ID from Appwrite
+        {
+          projectTitle: data.projectTitle,
+          authorName: data.authorName,
+          projectStatus: data.projectStatus,
+          contributionType: data.contributionType,
+          tags: tags.join(", "), // Convert tags array to string
+          coverImage: coverImageUpload.$id, // Store the Appwrite file ID
+          document: documentUpload.$id, // Store the Appwrite file ID
+          userId: user.$id, // Save the user ID to associate the research idea with the user
+          teamMembers: data.teamMembers?.map((member) => member.name),
+        }
+      );
+  
+      console.log("Form submitted successfully", response);
+      // Optionally, redirect to another page after submission
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (

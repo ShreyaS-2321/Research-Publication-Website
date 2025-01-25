@@ -66,12 +66,12 @@ const Home = () => {
       {/* Categories section */}
       <div className="w-full height-auto mt-40 flex items-center justify-center">
         <div className="w-[75%] flex items-center justify-center gap-10">
-          <div className="w-[350px] h-auto p-12 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] rounded-md flex items-center justify-center gap-4 cursor-pointer hover:scale-105 transition duration-500 ease-out">
+          <Link to={"/Allresearch"} className="w-[350px] h-auto p-12 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] rounded-md flex items-center justify-center gap-4 cursor-pointer hover:scale-105 transition duration-500 ease-out">
             <img src={trophy} alt="" />
             <h1 className="text-white font-montserrat font-semibold">
-              TOP FUNDED PROJECTS
+              ALL RESEARCH IDEAS
             </h1>
-          </div>
+          </Link>
           <div className="w-[350px] h-auto p-12 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] rounded-md flex items-center justify-center gap-4 cursor-pointer hover:scale-105 transition duration-500 ease-out">
             <img src={trophy} alt="" />
             <h1 className="text-white font-montserrat font-semibold">

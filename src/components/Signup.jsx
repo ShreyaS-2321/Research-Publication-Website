@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import signup from "../assets/signup.svg";
 import background from "../assets/background.svg";
 import { account } from "../../appwrite";
+import { ID } from "appwrite"; // Import ID utility from Appwrite
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -49,7 +50,9 @@ const Signup = () => {
     const value = e.target.value;
     setPassword(value);
     if (!isValidPassword(value)) {
-      setPasswordError("Password must include at least 8 characters, an uppercase letter, a lowercase letter, a number, and a special character.");
+      setPasswordError(
+        "Password must include at least 8 characters, an uppercase letter, a lowercase letter, a number, and a special character."
+      );
     } else {
       setPasswordError("");
     }
@@ -67,8 +70,7 @@ const Signup = () => {
 
     try {
       // Proceed with signup using Appwrite's Account.create method
-      await account.create(email, email, password, name); // Corrected parameters
-
+      await account.create(ID.unique(), email, password, name);
       setSuccess("Signup successful! Please check your email for verification.");
       setError("");
     } catch (error) {
@@ -78,7 +80,14 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${background})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage: `url(${background})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="bg-white p-8 rounded-[8px] shadow-md w-[60%] flex space-x-10">
         <div className="w-[50%] mt-8">
           <h2 className="text-3xl font-bold text-center bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] bg-clip-text text-transparent font-montserrat">
@@ -123,7 +132,10 @@ const Signup = () => {
               />
               {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
             </div>
-            <button type="submit" className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white py-2 rounded">
+            <button
+              type="submit"
+              className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white py-2 rounded"
+            >
               Continue
             </button>
           </form>
@@ -132,7 +144,7 @@ const Signup = () => {
           </p>
         </div>
         <div>
-          <img className="" src={signup} alt="" />
+          <img className="" src={signup} alt="Signup Illustration" />
         </div>
       </div>
     </div>

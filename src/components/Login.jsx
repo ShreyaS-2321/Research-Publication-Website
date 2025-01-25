@@ -19,29 +19,34 @@ const Login = () => {
     setSuccess("");
 
     // Validation check
-    if (!email || !password) {
+    if (!email.trim() || !password.trim()) {
       setError("Email and password are required!");
       return;
     }
 
     try {
-      // Attempt login with Appwrite
-      const session = await account.createSession(email, password);
-      console.log("Login Response:", session);
-
-      setSuccess("Login successful!");
-      setError("");
-
-      // Redirect to dashboard or home page after successful login
-      navigate("/Home"); // Assuming "/Home" is the route to go after login
+      const session = await account.createEmailPasswordSession(email, password);
+  console.log("Login successful:", session);
+  setSuccess("Login successful!");
+  navigate("/Home");
     } catch (loginError) {
-      setError(loginError.message); // Set the error message if login fails
+      console.error("Login Error:", loginError);
+      setError(
+        loginError.message || "An error occurred while logging in. Please try again."
+      );
       setSuccess("");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${background})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage: `url(${background})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="bg-white p-8 rounded-[8px] shadow-md w-[60%] flex space-x-10">
         <div>
           <img className="" src={loginImage} alt="Login" />
@@ -77,7 +82,10 @@ const Login = () => {
                 className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 mb-4"
               />
             </div>
-            <button type="submit" className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white py-2 rounded">
+            <button
+              type="submit"
+              className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white py-2 rounded"
+            >
               Continue
             </button>
           </form>

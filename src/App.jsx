@@ -5,6 +5,7 @@ import Signup from "./components/Signup"; // Path to your Signup component
 import Login from "./components/Login"; // Path to your Login component
 import Home from "./components/Home";
 import Uploadform from "./components/Uploadform";
+import Allresearch from "./components/Allresearch";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/Login" element={<Login />} />
         <Route path="/Home" element={<Home />} />
         <Route path="/Uploadform" element={<Uploadform />} />
+        <Route path="/Allresearch" element={<Allresearch />} />
       </Routes>
     </Router>
   );
