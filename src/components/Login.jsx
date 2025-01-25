@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import loginImage from "../assets/login.svg";
 import background from "../assets/background.svg";
-import { auth, signInWithEmailAndPassword } from "../firebase"; // Import updated auth functions
+import { account } from "../../appwrite";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -25,13 +25,9 @@ const Login = () => {
     }
 
     try {
-      // Attempt login with Firebase
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log("Login Response:", userCredential);
+      // Attempt login with Appwrite
+      const session = await account.createSession(email, password);
+      console.log("Login Response:", session);
 
       setSuccess("Login successful!");
       setError("");
@@ -45,14 +41,7 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-      style={{
-        backgroundImage: `url(${background})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${background})`, backgroundSize: "cover", backgroundPosition: "center" }}>
       <div className="bg-white p-8 rounded-[8px] shadow-md w-[60%] flex space-x-10">
         <div>
           <img className="" src={loginImage} alt="Login" />
@@ -67,9 +56,7 @@ const Login = () => {
 
           <form onSubmit={handleLogin} className="mt-4 space-y-4">
             <div>
-              <label className="block text-gray-600 font-inter mb-2">
-                Email
-              </label>
+              <label className="block text-gray-600 font-inter mb-2">Email</label>
               <input
                 type="email"
                 placeholder="forexample@gmail.com"
@@ -80,9 +67,7 @@ const Login = () => {
               />
             </div>
             <div>
-              <label className="block text-gray-600 font-inter mb-2">
-                Password
-              </label>
+              <label className="block text-gray-600 font-inter mb-2">Password</label>
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -92,19 +77,13 @@ const Login = () => {
                 className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 mb-4"
               />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white py-2 rounded"
-            >
+            <button type="submit" className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white py-2 rounded">
               Continue
             </button>
           </form>
 
           <p className="text-center text-gray-500 mt-4">
-            Don't have an account?{" "}
-            <Link to="/" className="text-blue-500">
-              Sign Up
-            </Link>
+            Don't have an account? <Link to="/" className="text-blue-500">Sign Up</Link>
           </p>
         </div>
       </div>
