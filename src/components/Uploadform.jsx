@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { account, storage, databases } from "appwrite";
+import { account, databases, storage } from "../../appwrite";
 
 const Uploadform = () => {
   const {
@@ -41,43 +41,72 @@ const Uploadform = () => {
   }, [contributionType]);
 
   const onSubmit = async (data) => {
-    // File Upload Handling
     try {
-      // Upload the PDF Document
-      const pdfFile = data.document[0];
-      const pdfFileUploaded = await storage.createFile(
-        "67954e160015d81d5269", // Your bucket ID from Appwrite
-        pdfFile.name,
-        pdfFile
-      );
-  
-      // Upload the Cover Image
-      const imageFile = data.coverImage[0];
-      const imageFileUploaded = await storage.createFile(
-        "67954e160015d81d5269", // Your bucket ID from Appwrite
-        imageFile.name,
-        imageFile
-      );
-  
-      // Save the form data along with file IDs to Appwrite database
-      const response = await databases.createDocument(
-        "679549870000eafd23e3", // The database ID from Appwrite
-        "679549a900198ab41a28", // The collection ID from Appwrite
-        {
-          projectTitle: data.projectTitle,
-          authorName: data.authorName,
-          projectStatus: data.projectStatus,
-          contributionType: data.contributionType,
-          tags: tags.join(", "), // Convert tags array to string
-          coverImage: coverImageUpload.$id, // Store the Appwrite file ID
-          document: documentUpload.$id, // Store the Appwrite file ID
-          userId: user.$id, // Save the user ID to associate the research idea with the user
-          teamMembers: data.teamMembers?.map((member) => member.name),
+      // Fetch logged-in user's details
+      const user = await account.get(); // Use the imported 'account'
+      const userId = user.$id; // Extract the logged-in user's ID
+
+      // File Upload Handling
+      const pdfFile = data.document[0]; // Accessing the first file (PDF)
+      const imageFile = data.coverImage[0]; // Accessing the first image file (Cover Image)
+
+      // Check if files are provided before uploading
+      if (pdfFile && imageFile) {
+        // File validation: Check if the document is PDF and the image is an image
+        if (pdfFile.type !== "application/pdf") {
+          alert("Only PDF files are allowed for the document.");
+          return;
         }
-      );
-  
-      console.log("Form submitted successfully", response);
-      // Optionally, redirect to another page after submission
+
+        // Upload the PDF Document
+        const pdfFileUploaded = await storage.createFile(
+          "67954e160015d81d5269", // Your bucket ID from Appwrite
+          "unique()",
+          pdfFile
+        );
+        console.log("PDF File Uploaded:", pdfFileUploaded); // Check the response
+
+        // Upload the Cover Image
+        const imageFileUploaded = await storage.createFile(
+          "67954e160015d81d5269", // Your bucket ID from Appwrite
+          "unique()",
+          imageFile
+        );
+        console.log("Image File Uploaded:", imageFileUploaded); // Check the response
+
+        const databseId = "679549870000eafd23e3"; // Replace with your actual project ID
+        const bucketId = "67954e160015d81d5269";
+
+        const pdfUrl = pdfFileUploaded?.$id
+          ? `https://cloud.appwrite.io/v1/storage/buckets/${pdfFileUploaded.bucketId}/files/${pdfFileUploaded.$id}/view?project=67950eef0033e1e08784`
+          : "";
+
+        const imageUrl = imageFileUploaded?.$id
+          ? `https://cloud.appwrite.io/v1/storage/buckets/${imageFileUploaded.bucketId}/files/${imageFileUploaded.$id}/view?project=67950eef0033e1e08784`
+          : "";
+
+        // Save the form data along with file URLs to Appwrite database
+        const response = await databases.createDocument(
+          "679549870000eafd23e3", // The database ID from Appwrite
+          "679549a900198ab41a28", // The collection ID from Appwrite
+          "unique()",
+          {
+            projectTitle: data.projectTitle,
+            authorName: data.authorName,
+            projectStatus: data.projectStatus,
+            contributionType: data.contributionType,
+            tags: tags, // Convert tags array to string
+            coverImage: imageUrl, // Use the URL from the uploaded image file
+            document: pdfUrl, // Use the URL from the uploaded PDF file
+            userId: userId, // Use the logged-in user's ID
+            teamMembers: data.teamMembers?.map((member) => member.name),
+          }
+        );
+
+        console.log("Form submitted successfully", response);
+      } else {
+        console.error("Please upload both PDF and Cover Image");
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -173,12 +202,14 @@ const Uploadform = () => {
           <select
             id="contributionType"
             className="w-full border border-gray-300 p-2 rounded-md outline-blue-700 font-inter cursor-pointer"
-            {...register("contributionType", { required: "Contribution type is required" })}
+            {...register("contributionType", {
+              required: "Contribution type is required",
+            })}
           >
             <option value="" disabled>
               Select Type
             </option>
-            <option value="Solo">Solo</option>
+            <option value="Individual">Individual</option>
             <option value="Team">Team</option>
           </select>
           {errors.contributionType && (
@@ -265,7 +296,7 @@ const Uploadform = () => {
           <input
             type="file"
             accept=".pdf"
-            className="w-full border border-gray-300 p-2 rounded-md outline-blue-700 font-inter cursor-pointer"
+            className="w-full border border-gray-300 p-2 rounded-md outline-blue-700 font-inter"
             {...register("document", { required: "Document is required" })}
           />
           {errors.document && (
@@ -281,40 +312,20 @@ const Uploadform = () => {
           </label>
           <input
             type="file"
-            accept=".jpg,.png"
-            className="w-full border border-gray-300 p-2 rounded-md outline-blue-700 font-inter cursor-pointer"
-            {...register("coverImage")}
+            accept="image/*"
+            className="w-full border border-gray-300 p-2 rounded-md outline-blue-700 font-inter"
+            {...register("coverImage", { required: "Cover image is required" })}
           />
-        </div>
-
-        <div className="mb-4 flex items-center">
-          <input
-            type="checkbox"
-            id="terms"
-            className="mr-2"
-            {...register("terms", { required: "You must agree to the terms" })}
-          />
-          <label htmlFor="terms" className="text-sm">
-            I agree to the {" "}
-            <a href="#" className="text-blue-700">
-              Privacy Policy
-            </a>{" "}
-            and {" "}
-            <a href="#" className="text-blue-700">
-              Terms of Service
-            </a>
-            .
-          </label>
-          {errors.terms && (
+          {errors.coverImage && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.terms.message}
+              {errors.coverImage.message}
             </p>
           )}
         </div>
 
         <button
           type="submit"
-          className="w-full bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white p-2 rounded-md font-inter"
+          className="w-full py-3 bg-blue-600 text-white rounded-lg mt-6 hover:bg-blue-700 transition"
         >
           Submit
         </button>
