@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate} from "react-router-dom";
 import signup from "../assets/signup.svg";
 import background from "../assets/background.svg";
 import { account } from "../../appwrite";
@@ -71,8 +71,9 @@ const Signup = () => {
     try {
       // Proceed with signup using Appwrite's Account.create method
       await account.create(ID.unique(), email, password, name);
-      setSuccess("Signup successful! Please check your email for verification.");
+      setSuccess("Signup successful!");
       setError("");
+      navigate("/Login");
     } catch (error) {
       setError(error.message);
       setSuccess("");
