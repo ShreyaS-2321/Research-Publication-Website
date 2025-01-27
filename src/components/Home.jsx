@@ -1,14 +1,36 @@
 import React from "react";
+import { account } from "../../appwrite";
 import background from "../assets/background.svg";
+import profile from "../assets/profile.png"
 import cv1 from "../assets/300image.jpg"
 import trophy from "../assets/Trophy.svg";
 import { Link } from "react-router-dom";
 
 const Home = () => {
+
+  const handleLogout = async () => {
+    try {
+      // Deletes the current session (logs out the user)
+      await account.deleteSession("current");
+      alert("You have been logged out successfully!");
+      // Redirect to login page or clear any authenticated state
+      window.location.href = "/Login"; // Update this to your login route
+    } catch (error) {
+      console.error("Error logging out:", error.message);
+      alert("Failed to log out. Please try again.");
+    }
+  };
+
   return (
     <div className=" bg-[#F5FBFF] min-h-screen font-sans flex-col">
       {/* header  */}
-      <div className="h-16 bg-white"></div>
+      <div className="h-16 bg-white flex justify-between items-center px-10">
+          <h1 className="text-2xl font-semibold bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] bg-clip-text text-transparent">InnoSphere</h1>
+          <div className="flex gap-4">
+          <img className="rounded-full h-[40px] w-[40px] object-contain border-2 border-blue-700" src={profile} alt="" />
+          <button onClick={handleLogout} className="bg-red-600 rounded-md p-2 text-white">Logout</button>
+          </div>
+      </div>
       {/* Hero Section */}
       <div
         className=" text-white py-10 h-[450px] text-center relative"
@@ -22,10 +44,10 @@ const Home = () => {
           DISCOVER, SHARE, INNOVATE
         </h1>
         <p className="text-lg mt-2 font-montserrat">
-          EXPLORE OVER
-          <span className="font-bold font-montserrat text-yellow-500">
+          EXPLORE A BOUNLESS COLLECTION OF
+          <span className="font-bold font-montserrat text-yellow-400">
             {" "}
-            9,99,999+
+            DIVERSE
           </span>{" "}
           RESEARCH CONTRIBUTIONS
         </p>
@@ -56,7 +78,7 @@ const Home = () => {
           <div className="mt-4">
             <Link
               to="/Uploadform"
-              className="bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white px-6 py-2 rounded-md hover:bg-blue-600 font-inter"
+              className="bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white px-6 py-2 rounded-md font-inter"
             >
               UPLOAD
             </Link>
