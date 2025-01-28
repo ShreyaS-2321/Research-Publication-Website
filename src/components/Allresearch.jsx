@@ -21,10 +21,15 @@ function Allresearch() {
           setError('No research projects available.');
         }
 
-          ...item,
-          likes: item.likes || 0,
-          views: item.views || 0,
-        }));
+        const researchData = result.documents.map((item) => {
+            return {
+              ...item,
+              likes: item.likes || 0,
+              views: item.views || 0,
+            };
+          }
+          return {}; // Handle invalid items
+        });
 
         setResearchProjects(researchData);
 
