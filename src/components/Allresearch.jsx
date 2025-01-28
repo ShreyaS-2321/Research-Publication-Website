@@ -22,6 +22,7 @@ function Allresearch() {
         }
 
         const researchData = result.documents.map((item) => {
+          if (item && typeof item === 'object') {
             return {
               ...item,
               likes: item.likes || 0,
