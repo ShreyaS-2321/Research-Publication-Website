@@ -325,7 +325,7 @@ const Uploadform = () => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-blue-600 text-white rounded-lg mt-6 hover:bg-blue-700 transition"
+          className="w-full py-3 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white rounded-lg mt-6 font-inter "
         >
           Submit
         </button>
