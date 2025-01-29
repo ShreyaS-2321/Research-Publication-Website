@@ -40,9 +40,9 @@ function Allresearch() {
           if (item && typeof item === 'object') {
             return {
               ...item,
-              likes: item.likes || 0,
+              likes: item.likedByUser?.length || 0, // Calculate likes based on likedByUser array
               views: item.views || 0,
-              likedByUser: item.likedByUser || [] // List of user IDs who liked the project
+              likedByUser: item.likedByUser || [] // Ensure likedByUser is an array
             };
           }
           return {}; // Handle invalid items
