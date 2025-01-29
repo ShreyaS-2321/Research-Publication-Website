@@ -15,4 +15,4 @@ const databases = new Databases(client);
 const storage = new Storage(client);
 
 // Export account object for usage in other files
-export { account };
+export { client, account, databases, storage };
