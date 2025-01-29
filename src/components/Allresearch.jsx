@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { databases } from '../../appwrite'; // Your Appwrite setup
+import { databases, account } from '../../appwrite'; // Your Appwrite setup
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +9,20 @@ function Allresearch() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userActions, setUserActions] = useState({}); // Store likes for each project
+  const [currentUserID, setCurrentUserID] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const accountInfo = await account.get();
+        setCurrentUserID(accountInfo.$id);
+      } catch (err) {
+        console.error('Error fetching current user:', err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +54,7 @@ function Allresearch() {
         const initialActions = {};
         researchData.forEach((project) => {
           initialActions[project.$id] = {
-            liked: project.likedByUser.includes('currentUserID') // Check if the current user liked it
+            liked: project.likedByUser.includes(currentUserID) // Check if the current user liked it
           };
         });
         setUserActions(initialActions);
@@ -52,10 +66,11 @@ function Allresearch() {
       }
     };
 
-    fetchData();
-  }, []);
+    if (currentUserID) {
+      fetchData();
+    }
+  }, [currentUserID]);
 
-  // Handle like toggle
   const handleLike = async (projectId, currentLikes, likedByUser) => {
     const isLiked = userActions[projectId]?.liked || false;
 
@@ -68,8 +83,8 @@ function Allresearch() {
                 ...project,
                 likes: isLiked ? project.likes - 1 : project.likes + 1,
                 likedByUser: isLiked
-                  ? project.likedByUser.filter((user) => user !== 'currentUserID')
-                  : [...project.likedByUser, 'currentUserID']
+                  ? project.likedByUser.filter((user) => user !== currentUserID)
+                  : [...project.likedByUser, currentUserID]
               }
             : project
         )
@@ -89,8 +104,8 @@ function Allresearch() {
         {
           likes: isLiked ? currentLikes - 1 : currentLikes + 1,
           likedByUser: isLiked
-            ? likedByUser.filter((user) => user !== 'currentUserID')
-            : [...likedByUser, 'currentUserID']
+            ? likedByUser.filter((user) => user !== currentUserID)
+            : [...likedByUser, currentUserID]
         }
       );
     } catch (err) {
@@ -98,7 +113,6 @@ function Allresearch() {
     }
   };
 
-  // Handle view tracking
   const handleView = async (projectId, currentViews, documentUrl) => {
     const isViewed = userActions[projectId]?.viewed || false;
 
