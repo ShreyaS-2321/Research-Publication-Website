@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link,useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import signup from "../assets/signup.svg";
 import background from "../assets/background.svg";
 import { account } from "../../appwrite";
@@ -14,6 +14,8 @@ const Signup = () => {
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const navigate = useNavigate();
 
   // Helper function for email validation
   const isValidEmail = (email) => {
@@ -22,7 +24,9 @@ const Signup = () => {
 
   // Helper function for password validation
   const isValidPassword = (password) => {
-    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+      password
+    );
   };
 
   // Real-time validations
@@ -71,9 +75,14 @@ const Signup = () => {
     try {
       // Proceed with signup using Appwrite's Account.create method
       await account.create(ID.unique(), email, password, name);
-      setSuccess("Signup successful!");
+      setSuccess("");
       setError("");
-      navigate("/Login");
+      setShowPopup(true);
+
+      setTimeout(() => {
+        setShowPopup(false);
+        navigate("/Login");
+      }, 1000);
     } catch (error) {
       setError(error.message);
       setSuccess("");
@@ -98,38 +107,50 @@ const Signup = () => {
           {success && <p style={{ color: "green" }}>{success}</p>}
           <form onSubmit={handleSignup} className="mt-4 space-y-4">
             <div>
-              <label className="block text-gray-600 font-inter mb-2">Name</label>
+              <label className="block text-gray-600 font-inter mb-2">
+                Name
+              </label>
               <input
                 type="text"
                 placeholder="Enter your full name"
                 value={name}
                 onChange={handleNameChange}
                 required
-                className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring ${nameError ? "border-red-500" : "focus:ring-blue-300"}`}
+                className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring ${
+                  nameError ? "border-red-500" : "focus:ring-blue-300"
+                }`}
               />
               {nameError && <p style={{ color: "red" }}>{nameError}</p>}
             </div>
             <div>
-              <label className="block text-gray-600 font-inter mb-2">Email</label>
+              <label className="block text-gray-600 font-inter mb-2">
+                Email
+              </label>
               <input
                 type="email"
                 placeholder="forexample@gmail.com"
                 value={email}
                 onChange={handleEmailChange}
                 required
-                className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring ${emailError ? "border-red-500" : "focus:ring-blue-300"}`}
+                className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring ${
+                  emailError ? "border-red-500" : "focus:ring-blue-300"
+                }`}
               />
               {emailError && <p style={{ color: "red" }}>{emailError}</p>}
             </div>
             <div>
-              <label className="block text-gray-600 font-inter mb-2">Password</label>
+              <label className="block text-gray-600 font-inter mb-2">
+                Password
+              </label>
               <input
                 type="password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={handlePasswordChange}
                 required
-                className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring ${passwordError ? "border-red-500" : "focus:ring-blue-300"}`}
+                className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring ${
+                  passwordError ? "border-red-500" : "focus:ring-blue-300"
+                }`}
               />
               {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
             </div>
@@ -139,9 +160,22 @@ const Signup = () => {
             >
               Continue
             </button>
+
+            {showPopup && (
+              <div
+                className="fixed top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        bg-white text-green-800 px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-1000 opacity-100"
+              >
+                Signup Successful!
+              </div>
+            )}
           </form>
           <p className="text-center text-gray-500 mt-4">
-            Already have an account? <Link to="/Login" className="text-blue-500">Login</Link>
+            Already have an account?{" "}
+            <Link to="/Login" className="text-blue-500">
+              Login
+            </Link>
           </p>
         </div>
         <div>
