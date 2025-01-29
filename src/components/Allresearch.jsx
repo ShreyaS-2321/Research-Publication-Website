@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { databases } from '../../appwrite'; // Your Appwrite setup
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
-import { faEye} from '@fortawesome/free-solid-svg-icons';
-
+import { faEye } from '@fortawesome/free-solid-svg-icons';
 
 function Allresearch() {
   const [researchProjects, setResearchProjects] = useState([]);
@@ -39,7 +38,9 @@ function Allresearch() {
         // Initialize user actions
         const initialActions = {};
         researchData.forEach((project) => {
-          initialActions[project.$id] = { liked: false, viewed: false };
+          // Retrieve like status from localStorage
+          const likedStatus = localStorage.getItem(`liked_${project.$id}`);
+          initialActions[project.$id] = { liked: likedStatus === 'true', viewed: false };
         });
         setUserActions(initialActions);
       } catch (err) {
@@ -72,6 +73,9 @@ function Allresearch() {
         ...prevActions,
         [projectId]: { ...prevActions[projectId], liked: !isLiked },
       }));
+
+      // Save like status to localStorage
+      localStorage.setItem(`liked_${projectId}`, !isLiked);
 
       // Update likes in Appwrite
       await databases.updateDocument(
