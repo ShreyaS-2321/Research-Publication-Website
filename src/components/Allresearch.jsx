@@ -183,7 +183,7 @@ function Allresearch() {
                     />{project.likes}{' '}
                   </div>
                   <div className="flex items-center gap-1">
-                    <FontAwesomeIcon icon={faEye} className="text-gray-400 text-xl" />
+                    <FontAwesomeIcon icon={faEye} className="text-gray-400" />
                     {project.views}{' '}
                   </div>
                 </div>
