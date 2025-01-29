@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { databases } from '../../appwrite'; // Your Appwrite setup
-import { FaHeart } from "react-icons/fa";
-import { AiFillEye } from "react-icons/ai";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faEye} from '@fortawesome/free-solid-svg-icons';
+
 
 function Allresearch() {
   const [researchProjects, setResearchProjects] = useState([]);
@@ -174,14 +176,14 @@ function Allresearch() {
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleLike(project.$id, project.likes)}
                   >
-                    <FaHeart
+                    <FontAwesomeIcon icon={faHeart}
                       className={`${
                         userActions[project.$id]?.liked ? 'text-blue-500' : 'text-gray-400'
                       }`}
                     />{project.likes}{' '}
                   </div>
                   <div className="flex items-center gap-1">
-                    <AiFillEye className="text-gray-400 text-xl" />
+                    <FontAwesomeIcon icon={faEye} className="text-gray-400 text-xl" />
                     {project.views}{' '}
                   </div>
                 </div>
