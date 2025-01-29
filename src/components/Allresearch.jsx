@@ -8,7 +8,7 @@ function Allresearch() {
   const [researchProjects, setResearchProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userActions, setUserActions] = useState({}); // Store likes and views for each project
+  const [userActions, setUserActions] = useState({}); // Store likes for each project
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +28,7 @@ function Allresearch() {
               ...item,
               likes: item.likes || 0,
               views: item.views || 0,
+              likedByUser: item.likedByUser || [] // List of user IDs who liked the project
             };
           }
           return {}; // Handle invalid items
@@ -38,9 +39,9 @@ function Allresearch() {
         // Initialize user actions
         const initialActions = {};
         researchData.forEach((project) => {
-          // Retrieve like status from localStorage
-          const likedStatus = localStorage.getItem(`liked_${project.$id}`);
-          initialActions[project.$id] = { liked: likedStatus === 'true', viewed: false };
+          initialActions[project.$id] = {
+            liked: project.likedByUser.includes('currentUserID') // Check if the current user liked it
+          };
         });
         setUserActions(initialActions);
       } catch (err) {
@@ -55,7 +56,7 @@ function Allresearch() {
   }, []);
 
   // Handle like toggle
-  const handleLike = async (projectId, currentLikes) => {
+  const handleLike = async (projectId, currentLikes, likedByUser) => {
     const isLiked = userActions[projectId]?.liked || false;
 
     try {
@@ -63,7 +64,13 @@ function Allresearch() {
       setResearchProjects((prevProjects) =>
         prevProjects.map((project) =>
           project.$id === projectId
-            ? { ...project, likes: isLiked ? project.likes - 1 : project.likes + 1 }
+            ? {
+                ...project,
+                likes: isLiked ? project.likes - 1 : project.likes + 1,
+                likedByUser: isLiked
+                  ? project.likedByUser.filter((user) => user !== 'currentUserID')
+                  : [...project.likedByUser, 'currentUserID']
+              }
             : project
         )
       );
@@ -74,15 +81,17 @@ function Allresearch() {
         [projectId]: { ...prevActions[projectId], liked: !isLiked },
       }));
 
-      // Save like status to localStorage
-      localStorage.setItem(`liked_${projectId}`, !isLiked);
-
-      // Update likes in Appwrite
+      // Update likes and likedByUser in Appwrite
       await databases.updateDocument(
         '679549870000eafd23e3', // Database ID
         '679549a900198ab41a28', // Collection ID
         projectId,
-        { likes: isLiked ? currentLikes - 1 : currentLikes + 1 }
+        {
+          likes: isLiked ? currentLikes - 1 : currentLikes + 1,
+          likedByUser: isLiked
+            ? likedByUser.filter((user) => user !== 'currentUserID')
+            : [...likedByUser, 'currentUserID']
+        }
       );
     } catch (err) {
       console.error('Error updating likes:', err);
@@ -178,13 +187,15 @@ function Allresearch() {
                 <div className="flex justify-between items-center gap-2">
                   <div
                     className="flex items-center gap-1 cursor-pointer"
-                    onClick={() => handleLike(project.$id, project.likes)}
+                    onClick={() => handleLike(project.$id, project.likes, project.likedByUser)}
                   >
-                    <FontAwesomeIcon icon={faHeart}
+                    <FontAwesomeIcon
+                      icon={faHeart}
                       className={`${
-                        userActions[project.$id]?.liked ? 'text-blue-500' : 'text-gray-400'
+                        userActions[project.$id]?.liked ? 'text-red-500' : 'text-gray-400'
                       }`}
-                    />{project.likes}{' '}
+                    />
+                    {project.likes}{' '}
                   </div>
                   <div className="flex items-center gap-1">
                     <FontAwesomeIcon icon={faEye} className="text-gray-400" />
