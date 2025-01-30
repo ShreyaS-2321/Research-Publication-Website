@@ -5,6 +5,7 @@ import profile from "../assets/profile.png"
 import cv1 from "../assets/300image.jpg"
 import trophy from "../assets/Trophy.svg";
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.svg";
 
 const Home = () => {
 
@@ -24,8 +25,8 @@ const Home = () => {
   return (
     <div className=" bg-[#F5FBFF] min-h-screen font-sans flex-col">
       {/* header  */}
-      <div className="h-16 bg-white flex justify-between items-center px-10">
-          <h1 className="text-2xl font-semibold bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] bg-clip-text text-transparent">InnoSphere</h1>
+      <div className="h-20 bg-white flex justify-between items-center px-10">
+          <img src={logo} alt="" />
           <div className="flex gap-4">
           <img className="rounded-full h-[40px] w-[40px] object-contain border-2 border-blue-700" src={profile} alt="" />
           <button onClick={handleLogout} className="bg-red-600 rounded-md p-2 text-white">Logout</button>
