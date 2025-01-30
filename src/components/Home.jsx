@@ -92,7 +92,7 @@ const Home = () => {
           <Link to={"/Allresearch"} className="w-[350px] h-auto p-12 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] rounded-md flex items-center justify-center gap-4 cursor-pointer hover:scale-105 transition duration-500 ease-out">
             <img src={trophy} alt="" />
             <h1 className="text-white font-montserrat font-semibold">
-              ALL RESEARCH IDEAS
+              ALL RESEARCH PUBLICATIONS
             </h1>
           </Link>
           <div className="w-[350px] h-auto p-12 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] rounded-md flex items-center justify-center gap-4 cursor-pointer hover:scale-105 transition duration-500 ease-out">
