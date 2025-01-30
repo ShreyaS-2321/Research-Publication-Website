@@ -201,7 +201,7 @@ function Allresearch() {
         <h2 className="text-xl font-semibold mb-12 text-center font-montserrat">
           ALL 
           <span className='bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] bg-clip-text text-transparent font-montserrat'> RESEARCH </span>
-          DOCUMENTS
+          PUBLICATIONS
         </h2>
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-10">
           {researchProjects.map((project, index) => (
