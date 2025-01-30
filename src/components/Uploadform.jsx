@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { account, databases, storage } from "../../appwrite";
+import submit from "../assets/submit.svg";
 
 const Uploadform = () => {
   const {
@@ -18,6 +20,10 @@ const Uploadform = () => {
 
   const [isTeam, setIsTeam] = useState(false);
   const [tags, setTags] = useState([]);
+  const navigate = useNavigate();
+  const [success, setSuccess] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTagInput = (e) => {
     if (e.key === "Enter" && e.target.value.trim() !== "" && tags.length < 10) {
@@ -42,6 +48,7 @@ const Uploadform = () => {
 
   const onSubmit = async (data) => {
     try {
+      setIsSubmitting(true);
       // Fetch logged-in user's details
       const user = await account.get(); // Use the imported 'account'
       const userId = user.$id; // Extract the logged-in user's ID
@@ -104,11 +111,20 @@ const Uploadform = () => {
         );
 
         console.log("Form submitted successfully", response);
+        setSuccess("");
+        setShowPopup(true);
+
+        setTimeout(() => {
+          setShowPopup(false);
+          navigate("/Home");
+        }, 1000);
       } else {
         console.error("Please upload both PDF and Cover Image");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -308,7 +324,7 @@ const Uploadform = () => {
 
         <div className="mb-4">
           <label className="block font-medium mb-1 font-inter">
-            Upload Cover Image
+            Upload Cover Image (JPG & PNG Only)
           </label>
           <input
             type="file"
@@ -325,10 +341,26 @@ const Uploadform = () => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white rounded-lg mt-6 font-inter "
+          disabled={isSubmitting} // Disable button when submitting
+          className={`w-full py-3 text-white rounded-lg mt-6 font-inter ${
+            isSubmitting
+              ? "bg-gray-400 cursor-not-allowed" // Greyed out when submitting
+              : "bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))]"
+          }`}
         >
-          Submit
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
+
+        {showPopup && (
+          <div
+            className="flex-col justify-center gap-5 fixed w-[300px] h-[300px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        bg-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-1000 opacity-100"
+          >
+            <img src={submit} alt="" />
+            <p className="text-center text-green-800 font-inter font-semibold">Form submitted successfully!</p>
+          </div>
+        )}
       </form>
     </div>
   );
