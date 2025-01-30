@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { databases, account } from '../../appwrite'; // Your Appwrite setup
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
+import profile from "../assets/profile.png"
+import background from "../assets/background.svg"
 
 function Allresearch() {
   const [researchProjects, setResearchProjects] = useState([]);
@@ -164,10 +167,41 @@ function Allresearch() {
     );
 
   return (
-    <div className="flex bg-[#F5FBFF] items-center justify-center">
-      <div className="py-10 px-4 mt-10">
+    <div className="bg-[#F5FBFF] min-h-screen">
+      {/* Header */}
+      <div className="h-16 bg-white flex items-center justify-between px-10">
+        <Link to="/Home" className="bg-red-600 rounded-md p-2 text-white">Back</Link>
+                  <img className="rounded-full h-[40px] w-[40px] object-contain border-2 border-blue-700" src={profile} alt="" />
+      </div>
+      {/* Search section */}
+      <div
+              className=" text-white py-10 h-auto text-center relative"
+              style={{
+                backgroundImage: `url(${background})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              <div className="mt-6 flex justify-center">
+                <input
+                  type="text"
+                  placeholder="Search.."
+                  className="w-1/2 px-4 py-2 rounded-md focus:outline-none text-black font-inter"
+                />
+              </div>
+              <div className="mt-4">
+                <button className="bg-yellow-500 text-white px-4 py-2 rounded-md font-inter">
+                  SEARCH
+                </button>
+              </div>
+            </div>
+      {/* All research section */}
+      <div className="flex items-center justify-center">
+        <div className="py-10 px-4 mt-8">
         <h2 className="text-xl font-semibold mb-12 text-center font-montserrat">
-          ALL RESEARCH PROJECTS
+          ALL 
+          <span className='bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] bg-clip-text text-transparent font-montserrat'> RESEARCH </span>
+          DOCUMENTS
         </h2>
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-10">
           {researchProjects.map((project, index) => (
@@ -229,6 +263,7 @@ function Allresearch() {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );
