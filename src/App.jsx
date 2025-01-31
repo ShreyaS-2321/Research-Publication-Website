@@ -13,8 +13,8 @@ const App = () => {
     <Router>
       <Routes>
         {/* Define Routes for Login and Signup */}
-        <Route path="/Landing" element={<Landing/>}/>
-        <Route path="/" element={<Signup />} />
+        <Route path="/" element={<Landing/>}/>
+        <Route path="/Signup" element={<Signup />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Home" element={<Home />} />
         <Route path="/Uploadform" element={<Uploadform />} />
