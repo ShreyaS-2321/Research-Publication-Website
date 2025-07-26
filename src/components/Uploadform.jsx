@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { account, databases, storage } from "../../appwrite";
@@ -131,7 +132,9 @@ const Uploadform = () => {
   return (
     <div className="bg-[#F5FBFF] h-full flex-col">
       {/* Header */}
-      <div className="bg-white h-16 shadow-sm"></div>
+      <div className="h-16 bg-white flex items-center justify-between px-10 shadow-sm">
+        <Link to="/Home" className="bg-red-600 rounded-md p-2 text-white">Back</Link>
+      </div>
       {/* Form */}
       <form
         onSubmit={handleSubmit(onSubmit)}
