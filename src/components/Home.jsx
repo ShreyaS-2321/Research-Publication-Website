@@ -1,26 +1,168 @@
-import React from "react";
-import { account } from "../../appwrite";
+import React, { useEffect, useState } from "react";
+import { account, databases } from "../../appwrite";
 import background from "../assets/background.svg";
 import profile from "../assets/profile.png"
-import cv1 from "../assets/300image.jpg"
 import trophy from "../assets/Trophy.svg";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faEye } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
+  const [researchProjects, setResearchProjects] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  const [userActions, setUserActions] = useState({}); // Store likes for each project
+  const [currentUserID, setCurrentUserID] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+          try {
+            const accountInfo = await account.get();
+            setCurrentUserID(accountInfo.$id);
+          } catch (err) {
+            console.error('Error fetching current user:', err);
+          }
+        };
+    
+        fetchCurrentUser();
+      }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await databases.listDocuments(
+          "679549870000eafd23e3", // Database ID
+          "679549a900198ab41a28"  // Collection ID
+        );
+
+        if (result.documents.length === 0) {
+          setError("No research projects available.");
+        }
+
+        const researchData = result.documents.map((item) => {
+          if (item && typeof item === "object") {
+            return {
+              ...item,
+              likes: item.likedByUser?.length || 0,
+              views: item.views || 0,
+              likedByUser: item.likedByUser || [],
+            };
+          }
+          return {};
+        });
+
+        setResearchProjects(researchData);
+
+        const initialActions = {};
+        researchData.forEach((project) => {
+          initialActions[project.$id] = {
+            liked: project.likedByUser.includes(currentUserID) // Check if the current user liked it
+          };
+        });
+        setUserActions(initialActions);
+      } catch (err) {
+        console.error("Error fetching research data:", err);
+        setError("Failed to fetch research projects.");
+      } finally {
+        // setLoading(false);
+      }
+    };
+
+    if (currentUserID) {
+      fetchData();
+    }
+  }, [currentUserID]);
+
+  const handleLike = async (projectId, currentLikes, likedByUser) => {
+    const isLiked = userActions[projectId]?.liked || false;
+
+    try {
+      setResearchProjects((prevProjects) =>
+        prevProjects.map((project) =>
+          project.$id === projectId
+            ? {
+                ...project,
+                likes: isLiked ? project.likes - 1 : project.likes + 1,
+                likedByUser: isLiked
+                  ? project.likedByUser.filter((user) => user !== currentUserID)
+                  : [...project.likedByUser, currentUserID]
+              }
+            : project
+        )
+      );
+
+      // Toggle like status
+      setUserActions((prevActions) => ({
+        ...prevActions,
+        [projectId]: { ...prevActions[projectId], liked: !isLiked },
+      }));
+
+      await databases.updateDocument(
+        "679549870000eafd23e3",
+        "679549a900198ab41a28",
+        projectId,
+        {
+          likes: isLiked ? currentLikes - 1 : currentLikes + 1,
+          likedByUser: isLiked
+            ? likedByUser.filter((user) => user !== currentUserID)
+            : [...likedByUser, currentUserID],
+        }
+      );
+    } catch (err) {
+      console.error("Error updating likes:", err);
+    }
+  };
+
+  const handleView = async (projectId, currentViews, documentUrl) => {
+    const isViewed = userActions[projectId]?.viewed || false;
+    window.open(documentUrl, "_blank");
+
+    if (!isViewed) {
+      try {
+        // Increment views locally
+        setResearchProjects((prevProjects) =>
+          prevProjects.map((project) =>
+            project.$id === projectId
+              ? { ...project, views: project.views + 1 }
+              : project
+          )
+        );
+
+        setUserActions((prevActions) => ({
+          ...prevActions,
+          [projectId]: { ...prevActions[projectId], viewed: true },
+        }));
+
+        await databases.updateDocument(
+          "679549870000eafd23e3",
+          "679549a900198ab41a28",
+          projectId,
+          { views: currentViews + 1 }
+        );
+      } catch (err) {
+        console.error("Error updating views:", err);
+      }
+    }
+  };
 
   const handleLogout = async () => {
     try {
-      // Deletes the current session (logs out the user)
       await account.deleteSession("current");
       alert("You have been logged out successfully!");
-      // Redirect to login page or clear any authenticated state
-      window.location.href = "/Login"; // Update this to your login route
+      window.location.href = "/Login";
     } catch (error) {
       console.error("Error logging out:", error.message);
       alert("Failed to log out. Please try again.");
     }
   };
+
+  const topViewedProjects = Array.isArray(researchProjects)
+  ? [...researchProjects].sort((a, b) => b.views - a.views)
+  : [];
+
+
+
 
   return (
     <div className=" bg-[#F5FBFF] min-h-screen font-sans flex-col">
@@ -112,44 +254,73 @@ const Home = () => {
 
       {/* Featured Research Projects */}
       <div className="flex items-center justify-center">
-        <div className="py-10 px-4 mt-10">
-          <h2 className="text-xl font-semibold mb-12 text-center font-montserrat">
-            FEATURED RESEARCH PROJECTS
-          </h2>
-          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-10">
-            {[1, 2, 3].map((item, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-md rounded-lg p-4 text-center w-[350px]"
+  <div className="py-10 px-4 mt-10">
+    <h2 className="text-xl font-semibold mb-12 text-center font-montserrat">
+      FEATURED RESEARCH PROJECTS
+    </h2>
+      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-10">
+        {topViewedProjects.slice(0, 3).map((project, index) => (
+          <div key={index} className="bg-white shadow-md rounded-lg p-4 text-center w-[350px]">
+            <img
+              src={project.coverImage}
+              alt={project.projectTitle}
+              className="mx-auto mb-4 w-full h-40 object-fill rounded-md"
+            />
+            <h3 className="text-lg font-bold">{project.projectTitle}</h3>
+
+            <div className="mt-4 text-xs text-gray-500 flex justify-center gap-4">
+              <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
+                {project.contributionType}
+              </span>
+              <span
+                className={`px-2 py-1 rounded-full ${
+                  project.projectStatus === 'Ongoing'
+                    ? 'bg-yellow-300 text-yellow-800'
+                    : 'bg-green-300 text-green-800'
+                }`}
               >
-                <img
-                  src={cv1}
-                  alt="Robot"
-                  className="mx-auto mb-4 w-full h-40 object-fill rounded-md"
-                />
-                <h3 className="text-lg font-bold">ROBOMIND</h3>
-                <p className="text-gray-600 text-sm">
-                  AUTONOMOUS AI FOR ROBOTICS
-                </p>
-                <div className="mt-4 flex justify-between text-black text-base">
-                  <div>
-                    <p>Priyanka Singh</p>
-                  </div>
-                  <div className=" flex justify-between gap-2">
-                    <div>200</div>
-                    <div>1000</div>
-                  </div>
+                {project.projectStatus}
+              </span>
+            </div>
+
+            <div className="mt-4 flex justify-between text-black text-base">
+              <div>
+                <p>{project.authorName}</p>
+              </div>
+              <div className="flex justify-between items-center gap-2">
+                <div
+                  className="flex items-center gap-1 cursor-pointer"
+                  onClick={() => handleLike(project.$id, project.likes, project.likedByUser)}
+                >
+                  <FontAwesomeIcon
+                    icon={faHeart}
+                    className={`${
+                      userActions[project.$id]?.liked ? 'text-red-500' : 'text-gray-400'
+                    }`}
+                  />
+                  {project.likes}
                 </div>
-                <div className="mt-4 flex justify-center">
-                  <button className="bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white px-4 py-2 rounded-md font-inter w-full">
-                    VIEW
-                  </button>
+                <div className="flex items-center gap-1">
+                  <FontAwesomeIcon icon={faEye} className="text-gray-400" />
+                  {project.views}
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={() => handleView(project.$id, project.views, project.document)}
+                className="bg-[linear-gradient(to_right,_rgba(23,_40,_193,_1),_rgba(0,_109,_255,_1))] text-white px-4 py-2 rounded-md font-inter w-full"
+              >
+                VIEW
+              </button>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
+  </div>
+</div>
+
 
       {/* Upcoming Research Events */}
       <div className="py-10 px-4">
